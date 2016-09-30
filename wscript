@@ -450,7 +450,8 @@ def detect_platform(conf):
         ('IS_LINUX',   'Linux',   ['gnu0', 'gnukfreebsd', 'linux', 'posix']),
         ('IS_MACOSX',  'MacOS X', ['darwin']),
         ('IS_SUN',     'SunOS',   ['sunos']),
-        ('IS_WINDOWS', 'Windows', ['cygwin', 'win32'])
+        ('IS_WINDOWS', 'Windows', ['cygwin', 'win32']),
+        ('IS_FREEBSD', 'FreeBSD', ['freebsd']),
     ]
 
     for key,name,strings in platforms:
@@ -689,6 +690,9 @@ def obj_add_includes(bld, obj):
 
     if bld.env['IS_SUN']:
         obj.includes += ['posix', 'solaris']
+
+    if bld.env['IS_FREEBSD']:
+        obj.includes += ['posix', 'freebsd']
 
     if bld.env['IS_WINDOWS']:
         obj.includes += ['windows']
