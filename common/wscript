@@ -30,6 +30,8 @@ def create_jack_process_obj(bld, target, sources, uselib = None):
         env_includes = ['../solaris', '../posix', '../solaris/oss']
     if bld.env['IS_WINDOWS']:
         env_includes = ['../windows', '../windows/portaudio']
+    if bld.env['IS_FREEBSD']:
+        env_includes = ['../freebsd', '../posix', '../freebsd/oss']
     process.includes = ['.'] + env_includes + ['jack', '..']
     process.name     = target
     process.target   = target
@@ -324,7 +326,7 @@ def build(bld):
         if bld.env['IS_SUN']:
             netlib.source += ['../posix/JackNetUnixSocket.cpp','../posix/JackPosixThread.cpp', '../posix/JackPosixMutex.cpp', '../solaris/JackSolarisTime.c']
             netlib.env.append_value("CPPFLAGS", "-fvisibility=hidden")
-       
+
 
         if bld.env['IS_MACOSX']:
             netlib.source += ['../posix/JackNetUnixSocket.cpp','../posix/JackPosixThread.cpp', '../posix/JackPosixMutex.cpp', '../macosx/JackMachThread.cpp', '../macosx/JackMachTime.c']

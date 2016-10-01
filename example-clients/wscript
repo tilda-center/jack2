@@ -51,6 +51,8 @@ def build(bld):
         os_incdir = ['../solaris', '../posix']
     if bld.env['IS_WINDOWS']:
         os_incdir = ['../windows']
+    if bld.env['IS_FREEBSD']:
+        os_incdir = ['../freebsd', '../posix']
     for example_program, example_program_source in list(example_programs.items()):
         if example_program == 'jack_server_control':
             use = ['serverlib', 'STDC++']
@@ -77,9 +79,11 @@ def build(bld):
             prog.use += ['RT', 'M']
         if bld.env['IS_SUN']:
             prog.use += ['M']
+        if bld.env['IS_FREEBSD']:
+            prog.use += ['M']
 
         prog.target = example_program
-   
+
     if bld.env['BUILD_EXAMPLE_CLIENT_TRANSPORT']:
         prog = bld(features = 'c cprogram')
         prog.includes = os_incdir + ['../common/jack', '../common']
