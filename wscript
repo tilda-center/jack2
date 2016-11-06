@@ -692,7 +692,7 @@ def obj_add_includes(bld, obj):
         obj.includes += ['posix', 'solaris']
 
     if bld.env['IS_FREEBSD']:
-        obj.includes += ['posix', 'freebsd']
+        obj.includes += ['posix', 'freebsd', '/usr/local/include']
 
     if bld.env['IS_WINDOWS']:
         obj.includes += ['windows']
