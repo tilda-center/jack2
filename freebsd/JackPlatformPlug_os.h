@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 */
 
-#ifndef __JackPlatformPlug_sun__
-#define __JackPlatformPlug_sun__
+#ifndef __JackPlatformPlug_FreeBSD__
+#define __JackPlatformPlug_FreeBSD__
 
 #define jack_server_dir "/tmp"
 #define jack_client_dir "/tmp"

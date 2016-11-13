@@ -17,16 +17,70 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 */
 
-#ifndef __JackAtomic_sun__
-#define __JackAtomic_sun__
+#ifndef __JackAtomic_linux__
+#define __JackAtomic_linux__
 
 #include "JackTypes.h"
-#include <atomic.h>
+
+#ifdef __PPC__
+
+static inline int CAS(register UInt32 value, register UInt32 newvalue, register volatile void* addr)
+{
+    register int result;
+    register UInt32 tmp;
+    asm volatile (
+        "# CAS					\n"
+        "	lwarx	%4, 0, %1	\n"         // creates a reservation on addr
+        "	cmpw	%4, %2		\n"        //  test value at addr
+        "	bne-	1f          \n"
+        "	sync            	\n"         //  synchronize instructions
+        "	stwcx.	%3, 0, %1	\n"         //  if the reservation is not altered
+        //  stores the new value at addr
+        "	bne-	1f          \n"
+        "   li      %0, 1       \n"
+        "	b		2f          \n"
+        "1:                     \n"
+        "   li      %0, 0       \n"
+        "2:                     \n"
+        : "=r" (result)
+        : "r" (addr), "r" (value), "r" (newvalue), "r" (tmp)
+        );
+    return result;
+}
+
+#endif
+
+#if defined(__i386__) || defined(__x86_64__)
+
+#define LOCK "lock ; "
 
 static inline char CAS(volatile UInt32 value, UInt32 newvalue, volatile void* addr)
 {
-     return (atomic_cas_32((uint32_t*)addr, value, newvalue) == value);
+    register char ret;
+    __asm__ __volatile__ (
+        "# CAS \n\t"
+        LOCK "cmpxchg %2, (%1) \n\t"
+        "sete %0               \n\t"
+        : "=a" (ret)
+        : "c" (addr), "d" (newvalue), "a" (value)
+        );
+    return ret;
 }
+
+#endif
+
+
+
+
+#if !defined(__i386__) && !defined(__x86_64__)  && !defined(__PPC__)
+
+
+static inline char CAS(volatile UInt32 value, UInt32 newvalue, volatile void* addr)
+{
+    return __sync_bool_compare_and_swap ((UInt32*)addr, value, newvalue);
+}
+#endif
+
 
 #endif
 
