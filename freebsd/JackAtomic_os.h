@@ -21,12 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #define __JackAtomic_sun__
 
 #include "JackTypes.h"
-#include <atomic.h>
+#include <sys/types.h>
+#include <machine/atomic.h>
 
-static inline char CAS(volatile UInt32 value, UInt32 newvalue, volatile void* addr)
+static inline char
+CAS(volatile UInt32 value, UInt32 newvalue, volatile void* addr)
 {
-     return (atomic_cas_32((uint32_t*)addr, value, newvalue) == value);
+  return(atomic_cmpset_int((unsigned int *)addr, (unsigned int)value, (unsigned int)newvalue));
 }
 
 #endif
-
