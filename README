@@ -2,7 +2,7 @@
 To compile on FreeBSD
 ---------------------
 
-./waf configure --opus=no
+./waf configure --opus=no --alsa=no --check-cxx-compiler=clang++
 ./waf
 
 -----------------------------------------------------------
