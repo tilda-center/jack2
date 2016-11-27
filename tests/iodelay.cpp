@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2003-2008 Fons Adriaensen <fons@kokkinizita.net>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,12 +18,16 @@
 
 // --------------------------------------------------------------------------------
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstdint>
 #include <math.h>
 #include <unistd.h>
 #include <jack/jack.h>
+
+#ifndef UINT32_MAX
+#define UINT32_MAX 0xffffffffU
+#endif
 
 struct Freq
 {
@@ -68,7 +72,7 @@ struct MTDM * mtdm_new (double fsamp)
     retval->_freq [2].f  = 3072;
     retval->_freq [3].f  = 2560;
     retval->_freq [4].f  = 2304;
-    retval->_freq [5].f  = 2176; 
+    retval->_freq [5].f  = 2176;
     retval->_freq [6].f  = 1088;
     retval->_freq [7].f  = 1312;
     retval->_freq [8].f  = 1552;
@@ -99,14 +103,14 @@ int mtdm_process (struct MTDM *self, size_t len, float *ip, float *op)
         vip = *ip++;
         for (i = 0, F = self->_freq; i < 13; i++, F++)
         {
-            a = 2 * (float) M_PI * (F->p & 65535) / 65536.0; 
+            a = 2 * (float) M_PI * (F->p & 65535) / 65536.0;
             F->p += F->f;
-            c =  cosf (a); 
-            s = -sinf (a); 
+            c =  cosf (a);
+            s = -sinf (a);
             vop += (i ? 0.01f : 0.20f) * s;
             F->xa += s * vip;
             F->ya += c * vip;
-        } 
+        }
         *op++ = vop;
         if (++self->_cnt == 16)
         {
@@ -148,10 +152,10 @@ int mtdm_resolve (struct MTDM *self)
         k = (int)(floor (p + 0.5));
         e = fabs (p - k);
         if (e > self->_err) self->_err = e;
-        if (e > 0.4) return 1; 
+        if (e > 0.4) return 1;
         d += m * (k & 1);
         m *= 2;
-    }  
+    }
     self->_del = 16 * d;
 
     return 0;
@@ -238,25 +242,25 @@ int main (int ac, char *av [])
 
     while (1)
     {
- 
-    #ifdef WIN32 
-        Sleep (250); 
-    #else 
-        usleep (250000); 
- 	#endif        
+
+    #ifdef WIN32
+        Sleep (250);
+    #else
+        usleep (250000);
+ 	#endif
         if (mtdm_resolve (mtdm) < 0) printf ("Signal below threshold...\n");
-        else 
+        else
         {
             jack_nframes_t systemic_latency;
 
-            if (mtdm->_err > 0.3) 
+            if (mtdm->_err > 0.3)
             {
                 mtdm_invert ( mtdm );
                 mtdm_resolve ( mtdm );
             }
             systemic_latency = (jack_nframes_t) floor (mtdm->_del - (capture_latency.max + playback_latency.max));
 
-            printf ("%10.3lf frames %10.3lf ms total roundtrip latency\n\textra loopback latency: %u frames\n\tuse %u for the backend arguments -I and -O", mtdm->_del, mtdm->_del * t, 
+            printf ("%10.3lf frames %10.3lf ms total roundtrip latency\n\textra loopback latency: %u frames\n\tuse %u for the backend arguments -I and -O", mtdm->_del, mtdm->_del * t,
                     systemic_latency, systemic_latency/2);
             if (mtdm->_err > 0.2) printf (" ??");
                 if (mtdm->_inv) printf (" Inv");

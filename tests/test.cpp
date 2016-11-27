@@ -479,7 +479,7 @@ int process4(jack_nframes_t nframes, void *arg)
 	jack_nframes_t delta_time = cur_time - last_time;
 
 	Log("calling process4 callback : jack_frame_time = %ld delta_time = %ld\n", cur_time, delta_time);
-	if (delta_time > 0  && (jack_nframes_t)abs(delta_time - cur_buffer_size) > tolerance) {
+	if (delta_time > 0  && (jack_nframes_t)abs((uint32_t)(delta_time - cur_buffer_size)) > tolerance) {
 		printf("!!! ERROR !!! jack_frame_time seems to return incorrect values cur_buffer_size = %d, delta_time = %d tolerance %d\n", cur_buffer_size, delta_time, tolerance);
 	}
 
@@ -490,13 +490,13 @@ int process4(jack_nframes_t nframes, void *arg)
 int process5(jack_nframes_t nframes, void *arg)
 {
 	jack_client_t* client = (jack_client_t*) arg;
-    
+
     static jack_nframes_t first_current_frames;
     static jack_time_t first_current_usecs;
     static jack_time_t first_next_usecs;
     static float first_period_usecs;
 	static int res1 = jack_get_cycle_times(client, &first_current_frames, &first_current_usecs, &first_next_usecs, &first_period_usecs);
-	   
+
     jack_nframes_t current_frames;
     jack_time_t current_usecs;
     jack_time_t next_usecs;
@@ -507,10 +507,10 @@ int process5(jack_nframes_t nframes, void *arg)
         printf("!!! ERROR !!! jack_get_cycle_times fails...\n");
         return 0;
     }
-    
-	Log("calling process5 callback : jack_get_cycle_times delta current_frames = %ld delta current_usecs = %ld delta next_usecs = %ld period_usecs = %f\n", 
+
+	Log("calling process5 callback : jack_get_cycle_times delta current_frames = %ld delta current_usecs = %ld delta next_usecs = %ld period_usecs = %f\n",
         current_frames - first_current_frames, current_usecs - first_current_usecs, next_usecs - first_next_usecs, period_usecs);
- 
+
     first_current_frames = current_frames;
     first_current_usecs = current_usecs;
     first_next_usecs = next_usecs;
@@ -742,7 +742,7 @@ int main (int argc, char *argv[])
     } else {
         printf("!!! ERROR !!! Jackd server automatic renaming feature does not work!\n");
     }
-    
+
     /**
      * try to register a client with maximum possible client name size
      *
@@ -753,7 +753,7 @@ int main (int argc, char *argv[])
         client_name3[i] = 'A';
     }
     // And last one is the terminating '0'
-    client_name3[jack_client_name_size()] = 0; 
+    client_name3[jack_client_name_size()] = 0;
     Log("trying to register a new jackd client with maximum possible client name size...\n", client_name3);
     client2 = jack_client_open(client_name3, jack_options, &status, server_name);
     if (client2 != NULL) {
@@ -932,7 +932,7 @@ int main (int argc, char *argv[])
     } else {
         printf("error : port_set_name function can't be tested...\n");
     }
-    
+
     /**
      * Verify if a port can be registered with maximum port name size (that is "short name")
      *
@@ -948,7 +948,7 @@ int main (int argc, char *argv[])
     jack_port_t * test_max_port = jack_port_register(client1, port_name3,
                                       JACK_DEFAULT_AUDIO_TYPE,
                                       JackPortIsOutput, 0);
-   
+
     if (test_max_port != NULL) {
         Log ("valid : a port with maximum possible port name size can be registered\n");
 		jack_port_unregister(client1, test_max_port);
@@ -1316,7 +1316,7 @@ int main (int argc, char *argv[])
         }
         a++;
     }
-    
+
     jack_sleep(1 * 1000); // To hope all port registration and reorder callback have been received...
 
     // Check port registration callback again
@@ -1357,14 +1357,14 @@ int main (int argc, char *argv[])
     if (client_register == 0) {
         printf("!!! ERROR !!! Client registration callback not called for an opened client !\n");
     }
-        
+
     // Check client registration callback after jack_client_close
     jack_client_close(client2);
     jack_sleep(2000);
     if (client_register == 1) {
         printf("!!! ERROR !!! Client registration callback not called for a closed client!\n");
     }
-    
+
     // Open client2 again...
     client2 = jack_client_new(client_name2);
 
@@ -2058,7 +2058,7 @@ int main (int argc, char *argv[])
 	jack_set_process_callback(client1, process4, client1);
 	jack_activate(client1);
 	jack_sleep(2 * 1000);
-    
+
     /**
      * Checking jack_get_cycle_times.
     */
